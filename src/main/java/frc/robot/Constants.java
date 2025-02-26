@@ -20,8 +20,12 @@ public final class Constants {
   public static class ElevatorConstants{
     public static final int kElevatorMotorID1 = 20;
     public static final int kElevatorMotorID2 = 21;
-
-    public static final double kElevatorPositionTarget = 200;
-    
+    public static final double kElevatorkP = 3;
+    public static final double kElevatorkI = 0;
+    public static final double kElevatorkD = 0;
+    public static final double kElevatorkS = 0;
+    public static final double kElevatorkG = 0;
+    public static final double kElevatorkV = 0;
+    public static final double kElevatorkA = 0;
   }
 }
