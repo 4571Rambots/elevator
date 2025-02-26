@@ -38,9 +38,9 @@ public class Elevator extends SubsystemBase {
     config.Slot0.kI = 0.0;   // based on your
     config.Slot0.kD = 0.5;   // testing
     config.Slot0.kS = 0.25;  // Static friction compensation
-    config.Slot0.kV = 0.2;  // Velocity feedforward
+    config.Slot0.kV = 1.1;  // Velocity feedforward
     config.Slot0.kA = 0.05;  // Acceleration feedforward
-    config.Slot0.kG = -18; // Gravity
+    config.Slot0.kG = 0.1; // Gravity
 
     // Apply configuration to both motors
     m_motor1.getConfigurator().apply(config);
