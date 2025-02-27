@@ -27,10 +27,17 @@ public class RobotContainer {
           m_elevator.moveElevator(-speed);
         },
         m_elevator));
-
+    joysticks.a().whileTrue(
+        new RunCommand(
+            () -> m_elevator.setPositionWithRequest(m_request.withPosition(1)),
+            m_elevator));
     joysticks.b().whileTrue(
         new RunCommand(
             () -> m_elevator.setPositionWithRequest(m_request.withPosition(3)),
+            m_elevator));
+    joysticks.y().whileTrue(
+        new RunCommand(
+            () -> m_elevator.setPositionWithRequest(m_request.withPosition(4.5)),
             m_elevator));
 
   }
