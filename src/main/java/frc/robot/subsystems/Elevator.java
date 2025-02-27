@@ -15,9 +15,6 @@ public class Elevator extends SubsystemBase {
   private final TalonFX m_motor1 = new TalonFX(ElevatorConstants.kElevatorMotorID1, "ChooChooTrain");
   private final TalonFX m_motor2 = new TalonFX(ElevatorConstants.kElevatorMotorID2, "ChooChooTrain");
   
-  // Gravity compensation constant
-  private final double kGravityCompensation = 0.03;
-  
   // Add Motion Magic control request
   private int m_printCount = 0;
   private double INITIAL_OFFSET = 0;
@@ -42,6 +39,7 @@ public class Elevator extends SubsystemBase {
     config.Slot0.kS = 0.25;  
     config.Slot0.kV = 1.1;   
     config.Slot0.kA = 0.05;  
+    config.Slot0.kG = 0.1;
 
     // Apply configuration to both motors
     m_motor1.getConfigurator().apply(config);
@@ -91,7 +89,7 @@ public class Elevator extends SubsystemBase {
   }
 
   /**
-   * Moves the elevator at the given speed.
+   * MovessetPosition the elevator at the given speed.
    * Positive values move the elevator up and negative values move it down.
    *
    * @param speed A value between -1.0 and 1.0 representing motor output.
@@ -100,45 +98,12 @@ public class Elevator extends SubsystemBase {
     m_motor1.setNeutralMode(NeutralModeValue.Brake);
     m_motor2.setNeutralMode(NeutralModeValue.Brake);
     
-    m_motor1.setControl(new DutyCycleOut(-speed * 0.5));
-    m_motor2.setControl(new DutyCycleOut(speed * 0.5));
+    m_motor1.setControl(new DutyCycleOut(-speed*0.5));
+    m_motor2.setControl(new DutyCycleOut(speed*0.5));
   }
 
   /** Stops the elevator. */
   public void stop() {
     moveElevator(0);
-  }
-
-  /**
-   * Applies a deadband to the joystick value.
-   * @param value The raw joystick input.
-   * @param deadband The deadband threshold.
-   * @return Zero if within the deadband, otherwise returns the original value.
-   */
-  private double applyDeadband(double value, double deadband) {
-    return Math.abs(value) < deadband ? 0 : value;
-  }
-
-  /**
-   * Moves the elevator based on joystick input with gravity compensation.
-   *
-   * <p>If there’s no input, a constant upward command is applied to counteract gravity.
-   * When moving upward, the gravity compensation is added so that the motor provides extra power
-   * to overcome gravity, while downward motion is left to gravity.
-   *
-   * @param joystickInput The raw joystick input value.
-   */
-  public void moveElevatorWithGravity(double joystickInput) {
-    double speed = applyDeadband(joystickInput, 0.05);
-    if (speed == 0) {
-      // No joystick input: hold position with gravity compensation.
-      moveElevator(kGravityCompensation);
-    } else if (speed < 0) {
-      // Joystick pushed upward (negative value): add gravity compensation.
-      moveElevator(-speed + kGravityCompensation);
-    } else {
-      // Joystick pushed downward (positive value): let gravity assist.
-      moveElevator(-speed);
-    }
   }
 }
