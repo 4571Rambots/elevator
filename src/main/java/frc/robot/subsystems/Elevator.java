@@ -2,8 +2,8 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -16,7 +16,6 @@ public class Elevator extends SubsystemBase {
   private final TalonFX m_motor2 = new TalonFX(ElevatorConstants.kElevatorMotorID2, "ChooChooTrain");
   
   // Add Motion Magic control request
-  private final MotionMagicVoltage m_motionMagic = new MotionMagicVoltage(0);
   private int m_printCount = 0;
   private double INITIAL_OFFSET = 0;
   private boolean hasInitialized = false;
@@ -29,18 +28,18 @@ public class Elevator extends SubsystemBase {
     config.Feedback.SensorToMechanismRatio = 9.0; // Adjust based on your gear ratio
     
     // Configure Motion Magic parameters
-    config.MotionMagic.withMotionMagicCruiseVelocity(20.0)  // Adjust these values
-                      .withMotionMagicAcceleration(40.0)    // based on your
-                      .withMotionMagicJerk(4000.0);         // requirements
+    config.MotionMagic.withMotionMagicCruiseVelocity(10.0)  // Reduced from 20.0
+                      .withMotionMagicAcceleration(20.0)    // Reduced from 40.0
+                      .withMotionMagicJerk(2000.0);         // Reduced from 4000.0
     
     // Configure PID values
-    config.Slot0.kP = 60.0;  // Adjust these values
-    config.Slot0.kI = 0.0;   // based on your
-    config.Slot0.kD = 0.5;   // testing
-    config.Slot0.kS = 0.25;  // Static friction compensation
-    config.Slot0.kV = 1.1;  // Velocity feedforward
-    config.Slot0.kA = 0.05;  // Acceleration feedforward
-    config.Slot0.kG = 0.1; // Gravity
+    config.Slot0.kP = 30.0;  // Reduced from 60.0
+    config.Slot0.kI = 0.0;   
+    config.Slot0.kD = 0.1;   // Reduced from 0.5
+    config.Slot0.kS = 0.25;  
+    config.Slot0.kV = 1.1;   
+    config.Slot0.kA = 0.05;  
+    config.Slot0.kG = 0.1;
 
     // Apply configuration to both motors
     m_motor1.getConfigurator().apply(config);
@@ -54,11 +53,18 @@ public class Elevator extends SubsystemBase {
    * Moves the elevator to a specific position using Motion Magic
    * @param targetPosition The target position in rotations
    */
-  public void setPosition(double targetPosition) {
+  // public void setPosition(double targetPosition) {
+  //   m_motor1.setNeutralMode(NeutralModeValue.Brake);
+  //   m_motor2.setNeutralMode(NeutralModeValue.Brake);
+  //   m_motor1.setControl(m_motionMagic.withPosition(targetPosition).withSlot(0));
+  // }
+
+  // Overloaded method for DynamicMotionMagicVoltage input
+  public void setPositionWithRequest(MotionMagicVoltage request) {
     m_motor1.setNeutralMode(NeutralModeValue.Brake);
     m_motor2.setNeutralMode(NeutralModeValue.Brake);
-    m_motor1.setControl(m_motionMagic.withPosition(targetPosition).withSlot(0));
-    m_motor2.setControl(m_motionMagic.withPosition(targetPosition).withSlot(0));
+    m_motor2.setControl(new Follower(m_motor1.getDeviceID(), true));
+    m_motor1.setControl(request.withPosition(-request.Position));
   }
 
   @Override
@@ -83,7 +89,7 @@ public class Elevator extends SubsystemBase {
   }
 
   /**
-   * Moves the elevator at the given speed.
+   * MovessetPosition the elevator at the given speed.
    * Positive values move the elevator up and negative values move it down.
    *
    * @param speed A value between -1.0 and 1.0 representing motor output.
